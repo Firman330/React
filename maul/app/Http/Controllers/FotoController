@@ -1,0 +1,101 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Models\Foto;
+use App\Http\Requests\FotoStoreRequest;
+
+class FotoController extends Controller
+{
+    public function index()
+    {
+        $fotos = Foto::all();
+
+        return response()->json([
+            'results' => $fotos
+        ], 200);
+    }
+
+    public function show($id){
+        $fotos = Foto::find($id);
+        if(!$fotos){
+            return response()->json([
+                'message'=>'Tidak ada Foto'
+            ],404);
+        }
+        return response()->json([
+            'fotos'=>$fotos
+        ],200);
+    }
+    public function store(FotoStoreRequest $request)
+    {
+        try {
+        // Create User
+            Foto::create([
+                'judulfoto' => $request->judulfoto,
+                'deskripsi' => $request->deskripsi,
+                'tanggal_upload' => $request->tanggal_upload,
+                'lokasi_file' => $request->lokasi_file
+            ]);
+
+        // Return Json Response
+            return response()->json([
+                'message' => 'Foto successfully created.'
+            ], 201);
+        } catch (\Exception $e) {
+        // Return Json Response
+            return response()->json([
+                'message' => 'Something went really wrong!'
+            ], 500);
+        }
+    }
+
+
+
+    public function update(FotoStoreRequest $request, $id)
+    {
+        try {
+            $foto = Foto::find($id);
+
+            if (!$foto) {
+                return response()->json([
+                    'message' => 'Tidak ada Foto'
+                ], 404);
+            }
+
+            $foto->update([
+                'judulfoto' => $request->judulfoto,
+                'deskripsi' => $request->deskripsi,
+                'tanggal_upload' => $request->tanggal_upload,
+                'lokasi_file' => $request->lokasi_file,
+                'albumid' => $request->albumid,
+                'userid' => $request->userid
+            ]);
+
+            return response()->json([
+                'message' => 'Berhasil diupdate',
+                'foto' => $foto
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Gagal menyimpan foto: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+    public function destroy($id){
+        $fotos = Foto::find($id);
+
+        if (!$fotos) {
+            return response()->json([
+                'message' => 'Tidak ada Foto'
+            ], 404);
+        }
+        $fotos->delete();
+        return response()->json([
+            'message' => 'Berhasil dihapus'
+        ], 200);
+    }
+}
